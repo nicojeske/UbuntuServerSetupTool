@@ -1,12 +1,12 @@
 echo "Adding Proxy for $1 from $2 to localhost port $3"
-sudo tee -a /etc/nginx/sites-enabled/$1 > /dev/null <<EOT
+sudo tee -a /etc/nginx/sites-enabled/$2 > /dev/null <<EOT
 
 
 server {
  listen 443 ssl;
- server_name $2.$1;
-    ssl_certificate /etc/letsencrypt/live/$1/fullchain.pem; # managed by Certbot
-    ssl_certificate_key /etc/letsencrypt/live/$1/privkey.pem; # managed by Certbot
+ server_name $1.$2;
+    ssl_certificate /etc/letsencrypt/live/$2/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/$2/privkey.pem; # managed by Certbot
   include /etc/letsencrypt/options-ssl-nginx.conf;
   ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
   root /var/www/;
@@ -17,3 +17,5 @@ server {
   }
 }
 EOT
+nginx -t
+systemctl restart nginx
