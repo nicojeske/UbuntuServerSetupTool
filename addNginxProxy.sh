@@ -1,4 +1,9 @@
 echo "Adding Proxy for $1 from $2 to localhost port $3"
+ht="https"
+if [ "$4" != "" ]
+  then ht="http"
+fi
+
 sudo tee -a /etc/nginx/sites-enabled/$2 > /dev/null <<EOT
 
 
@@ -13,7 +18,7 @@ server {
   index index.html;
   location / {
     #try_files \$uri \$uri/ =404;
-    proxy_pass https://127.0.0.1:$3;
+    proxy_pass $ht://127.0.0.1:$3;
   }
 }
 EOT
