@@ -26,12 +26,14 @@ nginxInstalled=1
 ############################################
 
 mainMenu() {
-  selectedInMainMenu=$(dialog --menu \
+  selectedInMainMenu=$(
+    dialog --menu \
     "Select action..." 0 0 0 \
     "Install" "" \
     "Container" "" \
     "NginxProxy" "" \
-    "Close" "" 3>&1 1>&2 2>&3)
+    "Close" "" 3>&1 1>&2 2>&3
+  )
   dialog --clear
   clear
 
@@ -39,11 +41,13 @@ mainMenu() {
 }
 
 installMenu() {
-  selectedInInstallMenu=$(dialog --checklist "Software to install..." 0 0 0 \
+  selectedInInstallMenu=$(
+    dialog --checklist "Software to install..." 0 0 0 \
     "Webmin" "" off \
     "ZSH" "" off \
     "NginxWithSSL" "" off \
-    "Docker" "" off 3>&1 1>&2 2>&3)
+    "Docker" "" off 3>&1 1>&2 2>&3
+  )
   dialog --clear
   clear
 
@@ -51,13 +55,15 @@ installMenu() {
 }
 
 containerMenu() {
-  selectedInContainerMenu=$(dialog --checklist "Containers to install..." 0 0 0 \
+  selectedInContainerMenu=$(
+    dialog --checklist "Containers to install..." 0 0 0 \
     "Portainer" "" off \
     "Statping" "" off \
     "Teamspeak" "" off \
     "Sinusbot" "" off \
     "Nextcloud" "" off \
-    "Watchtower" "" off 3>&1 1>&2 2>&3)
+    "Watchtower" "" off 3>&1 1>&2 2>&3
+  )
   dialog --clear
   clear
 
@@ -178,17 +184,17 @@ installDockerAndDockerCompose() {
   progressBar "$(steps 1 $steps)" "Install Dependencies"
   (
     apt-get install -q -y \
-      apt-transport-https \
-      ca-certificates \
-      curl \
-      gnupg-agent \
-      software-properties-common
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
   )
 
   progressBar "$(steps 3 $steps)" "Add Docker Repo"
   add-apt-repository \
-    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+  "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
      $(lsb_release -cs) \
      stable"
 
@@ -336,12 +342,12 @@ installTeamspeak() {
 
   progressBar $(steps 1 $steps) "Install Teamspeak"
   docker run -d \
-    -v teaspeak_files:/opt/teaspeak/files \
-    -v teaspeak_db:/opt/teaspeak/database \
-    -v teaspeak_certs:/opt/teaspeak/certs \
-    -v teaspeak_logs:/opt/teaspeak/logs \
-    -p 10011:10011 -p 30033:30033 -p 9987:9987 -p 9987:9987/udp \
-    --restart=unless-stopped --name teaspeak eparlak/teaspeak:slim
+  -v teaspeak_files:/opt/teaspeak/files \
+  -v teaspeak_db:/opt/teaspeak/database \
+  -v teaspeak_certs:/opt/teaspeak/certs \
+  -v teaspeak_logs:/opt/teaspeak/logs \
+  -p 10011:10011 -p 30033:30033 -p 9987:9987 -p 9987:9987/udp \
+  --restart=unless-stopped --name teaspeak eparlak/teaspeak:slim
 
   progressBar $(steps 2 $steps) "Allow ports"
   ufw allow 10011
@@ -359,10 +365,10 @@ installSinusbot() {
 
   progressBar $(steps 1 $steps) "Install sinusbot"
   docker run -d -p $port:8087 \
-    -v /opt/sinusbot/scripts:/opt/sinusbot/scripts \
-    -v /opt/sinusbot/data:/opt/sinusbot/data \
-    --name sinusbot \
-    sinusbot/docker
+  -v /opt/sinusbot/scripts:/opt/sinusbot/scripts \
+  -v /opt/sinusbot/data:/opt/sinusbot/data \
+  --name sinusbot \
+  sinusbot/docker
   askForNginxProxy "Sinusbot" $port http
 
   progressBar $(steps 2 $steps) "Installed sinusbot"
@@ -423,9 +429,9 @@ installWatchtower() {
   steps=2
   progressBar $(steps 1 $steps) "Install watchtower"
   docker run -d \
-    --name watchtower \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    containrrr/watchtower
+  --name watchtower \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  containrrr/watchtower
   progressBar $(steps 1 $steps) "Installed watchtower"
 }
 
@@ -485,7 +491,7 @@ generateProxyBasedOnUserInput() {
     http=$3
   fi
 
-  addNginxProxy $subdomain $domain $2 $http
+  addNginxProxy "$subdomain" "$domain" "$port" "$http"
 }
 
 addNginxProxy() {
