@@ -491,10 +491,18 @@ generateProxyBasedOnUserInput() {
     http=$3
   fi
 
+  if [ $port = 10000 ] && [ $(dpkg-query -W -f='${Status}' nano 2>/dev/null | grep -c "ok installed") = 1 ]; then
+    echo "referer=$subdomain.$domain" >> /etc/webmin/config
+  fi
+
   addNginxProxy "$subdomain" "$domain" "$port" "$http"
 }
 
 addNginxProxy() {
+  http_referer='$http_referer'
+  remote_addr='$remote_addr'
+  scheme='$scheme'
+
   sudo tee -a /etc/nginx/sites-enabled/$2 >/dev/null <<EOT
 
 
@@ -507,6 +515,9 @@ server {
   ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
   location / {
     proxy_pass $4://127.0.0.1:$3;
+    proxy_set_header Referer $http_referer;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Forwarded-Proto $scheme;
   }
 }
 EOT
