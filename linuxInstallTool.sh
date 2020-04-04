@@ -63,6 +63,7 @@ containerMenu() {
     "Sinusbot" "" off \
     "Nextcloud" "" off \
     "Heimdall" "" off \
+    "Duplicati" "" off \
     "Watchtower" "" off 3>&1 1>&2 2>&3
   )
   dialog --clear
@@ -293,6 +294,7 @@ containerSwitch() {
     'Nextcloud') installNextcloud ;;
     'Watchtower') installWatchtower ;;
     'Heimdall') installHeimdall ;;
+    'Duplicati') installDuplicati ;;
     esac
   done
   #  mainMenu
@@ -470,6 +472,43 @@ EOF
     progressBar $(steps 3 $steps) "Installed Heimdall"
 }
 
+installDuplicati() {
+      mkdir /var/linuxsetuptool/duplicati
+    cd /var/linuxsetuptool/duplicati
+    steps=3
+
+    rm docker-compose.yml
+    port=$(askPort "External port for Duplicati")
+    clear
+
+    progressBar $(steps 1 $steps) "Setup docker-compose.yml"
+    cat >>docker-compose.yml <<'EOF'
+version: "2"
+services:
+  duplicati:
+    image: linuxserver/duplicati
+    container_name: duplicati
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - CLI_ARGS= #optional
+    volumes:
+      - /path/to/appdata/config:/config
+      - /path/to/backups:/backups
+      - /path/to/source:/source
+    ports:
+      - PORTTOKEN
+    restart: unless-stopped
+EOF
+    replaceInFile "PORTTOKEN" "$port:8200" docker-compose.yml
+    progressBar $(steps 2 $steps) "Install Duplicati"
+
+    docker-compose up -d
+    askForNginxProxy "Duplicati" $port http
+    progressBar $(steps 3 $steps) "Installed Duplicati"
+}
+
 ############################################
 ##### UTILS
 ############################################
@@ -537,6 +576,7 @@ addNginxProxy() {
   http_referer='$http_referer'
   remote_addr='$remote_addr'
   scheme='$scheme'
+  server='$server_name'
 
   sudo tee -a /etc/nginx/sites-enabled/$2 >/dev/null <<EOT
 
