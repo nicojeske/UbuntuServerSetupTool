@@ -62,6 +62,7 @@ containerMenu() {
     "Teamspeak" "" off \
     "Sinusbot" "" off \
     "Nextcloud" "" off \
+    "Heimdall" "" off \
     "Watchtower" "" off 3>&1 1>&2 2>&3
   )
   dialog --clear
@@ -291,6 +292,7 @@ containerSwitch() {
     'Sinusbot') installSinusbot ;;
     'Nextcloud') installNextcloud ;;
     'Watchtower') installWatchtower ;;
+    'Heimdall') installHeimdall ;;
     esac
   done
   #  mainMenu
@@ -419,7 +421,6 @@ EOF
     progressBar $(steps 2 $steps) "Install Nextcloud"
 
     docker-compose -p nextcloud up -d
-    rm docker-compose.yml
     askForNginxProxy "Nextcloud" $port http
     progressBar $(steps 3 $steps) "Installed nextcloud"
   )
@@ -432,7 +433,41 @@ installWatchtower() {
   --name watchtower \
   -v /var/run/docker.sock:/var/run/docker.sock \
   containrrr/watchtower
-  progressBar $(steps 1 $steps) "Installed watchtower"
+  progressBar $(steps 2 $steps) "Installed watchtower"
+}
+
+installHeimdall() {
+      mkdir /var/linuxsetuptool/heimdall
+    cd /var/linuxsetuptool/heimdall
+    steps=3
+
+    rm docker-compose.yml
+    port=$(askPort "External port for Heimdall")
+    clear
+
+    progressBar $(steps 1 $steps) "Setup docker-compose.yml"
+    cat >>docker-compose.yml <<'EOF'
+version: "2"
+services:
+  heimdall:
+    image: linuxserver/heimdall
+    container_name: heimdall
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - /var/linuxsetuptool/heimdall/config:/config
+    ports:
+      - PORTTOKEN:443
+    restart: unless-stopped
+EOF
+    replaceInFile "PORTTOKEN:443" "$port:443" docker-compose.yml
+    progressBar $(steps 2 $steps) "Install Heimdall"
+
+    docker-compose up -d
+    askForNginxProxy "Heimdall" $port https
+    progressBar $(steps 3 $steps) "Installed Heimdall"
 }
 
 ############################################
@@ -518,6 +553,7 @@ server {
     proxy_set_header Referer $http_referer;
     proxy_set_header X-Forwarded-For $remote_addr;
     proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $server_name;
   }
 }
 EOT
