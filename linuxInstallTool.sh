@@ -576,7 +576,7 @@ addNginxProxy() {
   http_referer='$http_referer'
   remote_addr='$remote_addr'
   scheme='$scheme'
-  server='$server_name'
+  server_name='$server_name'
 
   sudo tee -a /etc/nginx/sites-enabled/$2 >/dev/null <<EOT
 
