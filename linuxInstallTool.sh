@@ -345,13 +345,13 @@ installTeamspeak() {
   steps=3
 
   progressBar $(steps 1 $steps) "Install Teamspeak"
+
+  docker volume create teamspeak_data
   docker run -d \
-  -v teaspeak_files:/opt/teaspeak/files \
-  -v teaspeak_db:/opt/teaspeak/database \
-  -v teaspeak_certs:/opt/teaspeak/certs \
-  -v teaspeak_logs:/opt/teaspeak/logs \
+  -v teamspeak_data:/var/ts3server \
   -p 10011:10011 -p 30033:30033 -p 9987:9987 -p 9987:9987/udp \
-  --restart=unless-stopped --name teaspeak eparlak/teaspeak:slim
+  -e TS3SERVER_LICENSE=accept \
+  --restart=unless-stopped --name teamspeak teamspeak:latest
 
   progressBar $(steps 2 $steps) "Allow ports"
   ufw allow 10011
