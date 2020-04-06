@@ -439,16 +439,16 @@ installWatchtower() {
 }
 
 installHeimdall() {
-      mkdir /var/linuxsetuptool/heimdall
-    cd /var/linuxsetuptool/heimdall
-    steps=3
+  mkdir /var/linuxsetuptool/heimdall
+  cd /var/linuxsetuptool/heimdall
+  steps=3
 
-    rm docker-compose.yml
-    port=$(askPort "External port for Heimdall")
-    clear
+  rm docker-compose.yml
+  port=$(askPort "External port for Heimdall")
+  clear
 
-    progressBar $(steps 1 $steps) "Setup docker-compose.yml"
-    cat >>docker-compose.yml <<'EOF'
+  progressBar $(steps 1 $steps) "Setup docker-compose.yml"
+  cat >>docker-compose.yml <<'EOF'
 version: "2"
 services:
   heimdall:
@@ -464,25 +464,25 @@ services:
       - PORTTOKEN:443
     restart: unless-stopped
 EOF
-    replaceInFile "PORTTOKEN:443" "$port:443" docker-compose.yml
-    progressBar $(steps 2 $steps) "Install Heimdall"
+  replaceInFile "PORTTOKEN:443" "$port:443" docker-compose.yml
+  progressBar $(steps 2 $steps) "Install Heimdall"
 
-    docker-compose up -d
-    askForNginxProxy "Heimdall" $port https
-    progressBar $(steps 3 $steps) "Installed Heimdall"
+  docker-compose up -d
+  askForNginxProxy "Heimdall" $port https
+  progressBar $(steps 3 $steps) "Installed Heimdall"
 }
 
 installDuplicati() {
-      mkdir /var/linuxsetuptool/duplicati
-    cd /var/linuxsetuptool/duplicati
-    steps=3
+  mkdir /var/linuxsetuptool/duplicati
+  cd /var/linuxsetuptool/duplicati
+  steps=3
 
-    rm docker-compose.yml
-    port=$(askPort "External port for Duplicati")
-    clear
+  rm docker-compose.yml
+  port=$(askPort "External port for Duplicati")
+  clear
 
-    progressBar $(steps 1 $steps) "Setup docker-compose.yml"
-    cat >>docker-compose.yml <<'EOF'
+  progressBar $(steps 1 $steps) "Setup docker-compose.yml"
+  cat >>docker-compose.yml <<'EOF'
 version: "2"
 services:
   duplicati:
@@ -501,12 +501,12 @@ services:
       - PORTTOKEN
     restart: unless-stopped
 EOF
-    replaceInFile "PORTTOKEN" "$port:8200" docker-compose.yml
-    progressBar $(steps 2 $steps) "Install Duplicati"
+  replaceInFile "PORTTOKEN" "$port:8200" docker-compose.yml
+  progressBar $(steps 2 $steps) "Install Duplicati"
 
-    docker-compose up -d
-    askForNginxProxy "Duplicati" $port http
-    progressBar $(steps 3 $steps) "Installed Duplicati"
+  docker-compose up -d
+  askForNginxProxy "Duplicati" $port http
+  progressBar $(steps 3 $steps) "Installed Duplicati"
 }
 
 ############################################
@@ -520,8 +520,15 @@ replaceInFile() {
 progressBar() {
   clear
   echo -n "[ "
-  for ((i = 0; i <= $1; i++)); do echo -n "###"; done
-  for ((j = i; j <= 10; j++)); do echo -n "   "; done
+  for ((i = 0; i <= $1; i++))
+  do
+    echo -n "###"
+  done
+
+  for ((j = i; j <= 10; j++))
+  do
+    echo -n "   "
+  done
   v=$(($1 * 10))
   echo -n " ] "
   echo -n "$v % $2" $'\r'
@@ -566,7 +573,7 @@ generateProxyBasedOnUserInput() {
   fi
 
   if [ $port = 10000 ] && [ $(dpkg-query -W -f='${Status}' nano 2>/dev/null | grep -c "ok installed") = 1 ]; then
-    echo "referer=$subdomain.$domain" >> /etc/webmin/config
+    echo "referer=$subdomain.$domain" >>/etc/webmin/config
   fi
 
   addNginxProxy "$subdomain" "$domain" "$port" "$http"
