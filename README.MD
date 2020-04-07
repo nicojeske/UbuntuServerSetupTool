@@ -8,7 +8,7 @@ The Ubuntu Server Setup Tool (USST) is a Bash-script you can use to automaticall
 
 ![](https://nicojeske.de/usst/install.gif)
 
-## Table of Contents (Optional)
+## Table of Contents
 
 
 - [Overview](#overview)
