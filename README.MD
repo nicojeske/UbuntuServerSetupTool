@@ -1,3 +1,5 @@
+DISCONTINUED
+
 # Ubuntu Server Setup Tool
 
 The Ubuntu Server Setup Tool (USST) is a Bash-script you can use to automatically install software and docker containers with a simple GUI.
